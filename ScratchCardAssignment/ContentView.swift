@@ -6,16 +6,19 @@
 //
 
 import SwiftUI
+import Combine
 
 struct ContentView: View {
+    @EnvironmentObject var viewModel: ScratchViewModel
+    @EnvironmentObject var navigation: Navigation
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack(path: $navigation.path) {
+            MainView()
+                .navigationDestination(for: ScratchViewNavigation.self) { _ in ScratchView() }
+                .navigationDestination(for: ActivationViewNavigation.self) { _ in ActivationView() }
         }
-        .padding()
+        .errorModalOverlay(viewModel.errorMessage, viewModel.confirmError)
     }
 }
 

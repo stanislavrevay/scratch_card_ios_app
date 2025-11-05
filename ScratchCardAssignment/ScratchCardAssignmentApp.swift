@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct ScratchCardAssignmentApp: App {
+    @StateObject var viewModel = ScratchViewModel(ScratchServices())
+    @StateObject var navigation = Navigation()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(viewModel)
+                .environmentObject(navigation)
         }
     }
 }

@@ -8,6 +8,12 @@
 import XCTest
 @testable import ScratchCardAssignment
 
+class MockService: ScratchServicesProtocol {
+    func activateCard() async throws -> Bool {
+        return true
+    }
+}
+
 final class ScratchCardAssignmentTests: XCTestCase {
 
     override func setUpWithError() throws {
@@ -32,5 +38,42 @@ final class ScratchCardAssignmentTests: XCTestCase {
             // Put the code you want to measure the time of here.
         }
     }
-
+    
+    @MainActor
+    func testInitialCardState() async throws {
+        let viewModel = ScratchViewModel(MockService())
+        XCTAssertTrue(viewModel.card.state == .unscratched)
+        XCTAssertTrue(viewModel.card.code == nil)
+    }
+    
+    @MainActor
+    func testScratchCard() async throws {
+        let viewModel = ScratchViewModel(MockService())
+        
+        viewModel.scratchCard()
+        try? await Task.sleep(for: .seconds(2.1))
+        
+        XCTAssertTrue(viewModel.card.state == .scratched)
+        XCTAssertTrue(viewModel.card.code != nil)
+    }
+    
+    @MainActor
+    func testScratchCardCancellation() async throws {
+        let viewModel = ScratchViewModel(MockService())
+        
+        viewModel.scratchCard()
+        viewModel.cancelScratching()
+        
+        XCTAssertTrue(viewModel.card.state == .unscratched)
+        XCTAssertTrue(viewModel.card.code == nil)
+    }
+    
+    @MainActor
+    func testCardActivation() async throws {
+        let viewModel = ScratchViewModel(MockService())
+        
+        viewModel.activateCard()
+        try? await Task.sleep(for: .seconds(1))
+        XCTAssertTrue(viewModel.card.state == .activated)
+    }
 }
